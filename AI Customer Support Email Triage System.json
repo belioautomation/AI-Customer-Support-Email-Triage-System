@@ -1,0 +1,574 @@
+{
+  "name": "AI Customer Support Email Triage System",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "labelIds": [
+            "INBOX"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -32,
+        208
+      ],
+      "id": "8351a191-d71c-4e3f-85da-e2760b3c67b5",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "jLxWaRUIVsLiAsVq",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Analyze this email.\n\nSubject:\n{{$json.Subject}}\n\nBody:\n{{$json.snippet}}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "systemMessage": "You are an AI customer support triage assistant.  Your job is to analyze incoming customer support emails and classify them accurately.  Rules:  1. Always return ONLY valid JSON. 2. Never wrap JSON inside markdown. 3. Never explain your answer. 4. Never include extra text before or after the JSON. 5. Use only the allowed values.  Allowed categories: - Billing - Technical - Refund - Complaint - Feedback - Account - General - Other  Allowed priorities: - High - Medium - Low  Allowed sentiments: - Positive - Neutral - Negative  Priority rules:  High: - Service unavailable - Login issues - Security problems - Payment failures - Angry customers - Legal threats - Urgent requests  Medium: - Account questions - Refund requests - Technical questions - Product questions  Low: - Feedback - Suggestions - Promotions - Newsletters - Marketing emails  Summary: Maximum 25 words.  Reply: Write one short professional acknowledgement.  Always return this schema exactly:  {   \"category\":\"\",   \"priority\":\"\",   \"sentiment\":\"\",   \"summary\":\"\",   \"reply\":\"\" }"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        208,
+        48
+      ],
+      "id": "c9a6de77-4390-4518-918c-eb1b3e457cca",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "WYDzz2zxJ52IoJ4m",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let raw = $json.content.parts[0].text;\n\n// Remove markdown code fences\nraw = raw.replace(/```json/g, '');\nraw = raw.replace(/```/g, '');\nraw = raw.trim();\n\nconst data = JSON.parse(raw);\n\nreturn [{\n  json: {\n    category: data.category,\n    priority: data.priority,\n    sentiment: data.sentiment,\n    summary: data.summary,\n    reply: data.reply\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        48
+      ],
+      "id": "16c7fe44-ac72-43e9-a905-0a88e5fb3ffe",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        768,
+        192
+      ],
+      "id": "0ef0033c-500c-4f1a-8c1c-f446757dea4d",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6648f64a-1da6-49fc-8ab8-171c23e917c3",
+              "leftValue": "={{$json.priority}}",
+              "rightValue": "High",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        976,
+        192
+      ],
+      "id": "524a6435-850b-4d26-993e-97dffc7cc6d8",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1i988Jx95vq2j8k4lt5Qrf53tvpEJx6LDEKY910V3Xes",
+          "mode": "list",
+          "cachedResultName": "AI Customer Support Email Triage System",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i988Jx95vq2j8k4lt5Qrf53tvpEJx6LDEKY910V3Xes/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i988Jx95vq2j8k4lt5Qrf53tvpEJx6LDEKY910V3Xes/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{$now}}",
+            "Sender": "={{ $('If').item.json.From }}",
+            "Subject": "={{ $('If').item.json.Subject }}",
+            "Category": "={{ $('If').item.json.category }}",
+            "Priority": "={{ $('If').item.json.priority }}",
+            "Sentiment": "={{ $('If').item.json.sentiment }}",
+            "Summary": "={{ $('If').item.json.summary }}",
+            "Status": "Open"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sender",
+              "displayName": "Sender",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1376,
+        320
+      ],
+      "id": "cc8f11c9-dae1-4036-bf4d-3e8cfce752c3",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "OKkqDH11KnvqdjLy",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{$json.id}}",
+        "message": "=<p>Hello,</p>\n\n<p>{{$json.reply}}</p>\n\n<hr>\n\n<p><strong>Priority:</strong> High</p>\n\n<p>Your request has been marked as urgent and has been forwarded to our support team.</p>\n\n<p>Thank you,<br>Customer Support Team</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1376,
+        64
+      ],
+      "id": "b0055411-4e3d-428d-8cdf-5f9cd598e4c4",
+      "name": "Reply to a message",
+      "webhookId": "d2133275-1ca9-4c76-9c10-f6c79314dc05",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "jLxWaRUIVsLiAsVq",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{$json.id}}",
+        "message": "=<p>Hello,</p>\n\n<p>{{$json.reply}}</p>\n\n<hr>\n\n<p>Your email has been received and logged successfully.</p>\n\n<p>Our support team will review it shortly.</p>\n\n<p>Thank you,<br>Customer Support Team</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1168,
+        320
+      ],
+      "id": "ddb3d80a-3186-4aff-b784-6dbc18e81f3f",
+      "name": "Reply to a message1",
+      "webhookId": "d2133275-1ca9-4c76-9c10-f6c79314dc05",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "jLxWaRUIVsLiAsVq",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1i988Jx95vq2j8k4lt5Qrf53tvpEJx6LDEKY910V3Xes",
+          "mode": "list",
+          "cachedResultName": "AI Customer Support Email Triage System",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i988Jx95vq2j8k4lt5Qrf53tvpEJx6LDEKY910V3Xes/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i988Jx95vq2j8k4lt5Qrf53tvpEJx6LDEKY910V3Xes/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{$now}}",
+            "Sender": "={{$json.From}}",
+            "Subject": "={{$json.Subject}}",
+            "Category": "={{$json.category}}",
+            "Priority": "={{$json.priority}}",
+            "Sentiment": "={{$json.sentiment}}",
+            "Summary": "={{ $json.summary }}",
+            "Status": "Open"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sender",
+              "displayName": "Sender",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1584,
+        64
+      ],
+      "id": "a5ab784f-e9a6-4fc0-b5f2-37d1f8c0e368",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "OKkqDH11KnvqdjLy",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "5518864435",
+        "text": "=🚨 HIGH PRIORITY SUPPORT EMAIL  \n📧 From: {{$json.From}}  \n📝 Subject: {{$json.Subject}}  \n📂 Category: {{$json.category}}  \n⚠️ Priority: {{$json.priority}}  \n💬 Sentiment: {{$json.sentiment}}  \n📄 Summary: {{$json.summary}}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1168,
+        64
+      ],
+      "id": "25b057f0-a197-4622-aa8f-9a83b29b02b1",
+      "name": "Telegram Alert",
+      "webhookId": "1727987b-586c-4038-ada2-d39bac45a6b8",
+      "credentials": {
+        "telegramApi": {
+          "id": "RG33sRqyjcwQOiLE",
+          "name": "AI Customer Support Email Triage System"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Telegram Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply to a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        []
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        []
+      ]
+    },
+    "Reply to a message1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Alert": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply to a message": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "fc5e2a8e-1dba-4095-82e4-b5dcd70ff9fb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
+  },
+  "nodeGroups": [],
+  "id": "wV5id1iP3P5rcGBA",
+  "tags": []
+}
