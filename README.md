@@ -1,11 +1,18 @@
 # 📩 AI Customer Support Email Triage System — n8n Automation
 
-An AI-powered customer support automation workflow built using **n8n**, **Google Gemini AI**, **Gmail**, **Google Sheets**, and **Telegram Bot API**.
+![n8n](https://img.shields.io/badge/n8n-Automation-orange)
+![Google Gemini](https://img.shields.io/badge/AI-Google%20Gemini-blue)
+![Gmail](https://img.shields.io/badge/API-Gmail-red)
+![Telegram](https://img.shields.io/badge/API-Telegram-green)
+![JavaScript](https://img.shields.io/badge/Code-JavaScript-yellow)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-This system automatically monitors incoming customer support emails, analyzes messages using AI, classifies customer issues, detects sentiment, assigns priority levels, generates summaries, logs support tickets, sends urgent notifications, and automatically responds to customers.
+An AI-powered customer support email automation workflow built using **n8n**, **Google Gemini AI**, **Gmail API**, **Google Sheets**, and **Telegram Bot API**.
+
+This system automatically monitors incoming customer support emails, analyzes messages using AI, classifies customer issues, detects sentiment, assigns priority levels, generates summaries, creates support records, sends urgent notifications, and automatically responds to customers.
 
 **Stack:**  
-n8n · Google Gemini AI · Gmail · Google Sheets · Telegram Bot · JavaScript · Google Workspace API
+n8n · Google Gemini AI · Gmail API · Google Sheets · Telegram Bot API · JavaScript · Google Workspace API · AI Automation
 
 
 ---
@@ -15,39 +22,46 @@ n8n · Google Gemini AI · Gmail · Google Sheets · Telegram Bot · JavaScript 
 
 ## Problem
 
-Customer support teams receive large amounts of emails every day, including:
-
-- Technical problems
-- Account issues
-- Product questions
-- Complaints
-- Urgent requests
+Customer support teams receive large volumes of emails every day, including:
 
 
-Manual email handling creates challenges:
+- Technical issues
+- Account problems
+- Billing concerns
+- Product inquiries
+- Customer complaints
+- Urgent support requests
+
+
+Manually processing every email creates several challenges:
+
 
 - Slow response times
-- Difficulty identifying urgent issues
-- Inconsistent prioritization
-- Increased workload for support teams
+- Difficult ticket prioritization
+- Missed urgent issues
+- Increased support workload
+- Inconsistent customer handling
 
 
 ---
 
 ## Solution
 
-This project creates an AI-powered email triage system that:
+This project creates an AI-powered email triage system that automatically:
 
 
 1. Monitors incoming Gmail messages
 2. Extracts customer information
-3. Uses Google Gemini AI to analyze emails
+3. Analyzes emails using Google Gemini AI
 4. Classifies customer requests
 5. Detects customer sentiment
 6. Assigns ticket priority
-7. Generates automatic replies
-8. Stores support records
-9. Alerts teams about urgent issues
+7. Generates AI-powered responses
+8. Stores support ticket records
+9. Sends alerts for urgent issues
+
+
+The workflow acts as an intelligent support assistant that helps teams process customer requests faster and more efficiently.
 
 
 ---
@@ -55,15 +69,16 @@ This project creates an AI-powered email triage system that:
 # ✨ Features
 
 
-## Email Automation
+## Email Processing
 
 ✅ Gmail inbox monitoring  
 ✅ Automatic support email detection  
 ✅ Email content extraction  
 ✅ Customer information processing  
+✅ Automated ticket creation  
 
 
-## AI Analysis
+## AI Support Analysis
 
 ✅ Google Gemini AI classification  
 ✅ Issue category detection  
@@ -73,12 +88,13 @@ This project creates an AI-powered email triage system that:
 ✅ Automated response generation  
 
 
-## Support Workflow
+## Support Automation
 
-✅ High-priority escalation  
-✅ Telegram team notifications  
-✅ Google Sheets ticket tracking  
-✅ Automatic customer acknowledgment  
+✅ Priority-based ticket routing  
+✅ Telegram escalation alerts  
+✅ Google Sheets ticket database  
+✅ Customer acknowledgment emails  
+✅ End-to-end support workflow automation  
 
 
 ---
@@ -101,22 +117,22 @@ B --> C["🤖 Google Gemini AI"]
 C --> D["📝 Parse AI JSON Output"]
 
 
-D --> E["🔀 Merge Gmail + AI Data"]
+D --> E["🔀 Merge Email + AI Data"]
 
 
-E --> F{"🚨 Priority Check"}
+E --> F{"🚨 Priority Evaluation"}
 
 
-F -->|High| G["📱 Telegram Alert"]
+F -->|High Priority| G["📱 Telegram Alert"]
 
 
-F -->|Medium / Low| H["📧 Auto Reply"]
+F -->|Medium / Low| H["📧 Customer Auto Reply"]
 
 
 G --> H
 
 
-H --> I["📊 Google Sheets Ticket Log"]
+H --> I["📊 Google Sheets Ticket Database"]
 
 ````
 
@@ -124,31 +140,49 @@ H --> I["📊 Google Sheets Ticket Log"]
 
 # 🏗️ Workflow Implementation
 
-# Workflow 1: AI Email Triage Pipeline
+# Workflow 1: AI Customer Support Email Triage Pipeline
 
 ## Node 1 — Gmail Trigger
 
 ### Purpose
 
-Monitor incoming customer support emails.
-
-Captured Data:
-
-| Field     | Description      |
-| --------- | ---------------- |
-| Sender    | Customer email   |
-| Subject   | Email subject    |
-| Body      | Customer message |
-| Timestamp | Received date    |
+Monitor incoming customer support emails and start the automation workflow.
 
 Configuration:
 
 ```
 Trigger:
+
 Gmail Trigger
 
+
 Event:
+
 New Email Received
+```
+
+Captured Information:
+
+| Field     | Description         |
+| --------- | ------------------- |
+| Sender    | Customer email      |
+| Subject   | Email subject       |
+| Body      | Customer message    |
+| Timestamp | Email received date |
+
+Example:
+
+```json
+{
+"sender":
+"customer@email.com",
+
+"subject":
+"Unable to login",
+
+"message":
+"I cannot access my account after resetting my password."
+}
 ```
 
 ---
@@ -157,14 +191,14 @@ New Email Received
 
 ### Purpose
 
-Analyze customer emails and generate structured support information.
+Analyze customer messages and generate structured support information.
 
-AI Evaluation:
+AI Evaluation Criteria:
 
-* Request category
-* Priority level
+* Issue category
 * Customer sentiment
-* Issue summary
+* Priority level
+* Ticket summary
 * Suggested response
 
 Example AI Output:
@@ -172,7 +206,7 @@ Example AI Output:
 ```json
 {
 "category":
-"Technical",
+"Technical Support",
 
 "priority":
 "High",
@@ -181,7 +215,7 @@ Example AI Output:
 "Negative",
 
 "summary":
-"Customer cannot log into account after password reset.",
+"Customer cannot login after password reset.",
 
 "reply":
 "Thank you for contacting support. Our team is reviewing your request."
@@ -194,29 +228,34 @@ Example AI Output:
 
 ### Purpose
 
-Parse Gemini AI JSON output into structured workflow data.
+Convert Gemini AI output into structured n8n data.
 
-Process:
+Processing:
 
 ```
-Gemini Response
+Gemini AI Response
 
         ↓
 
-JavaScript Parser
+JavaScript JSON Parser
 
         ↓
 
-n8n Data Object
+Structured Support Data
 ```
 
-Example:
+Example Output:
 
 ```json
 {
-"priority":"High",
-"category":"Technical",
-"sentiment":"Negative"
+"category":
+"Technical Support",
+
+"priority":
+"High",
+
+"sentiment":
+"Negative"
 }
 ```
 
@@ -226,12 +265,12 @@ Example:
 
 ### Purpose
 
-Combine original Gmail information with AI analysis results.
+Combine Gmail information with AI-generated analysis.
 
-Combined Data:
+Data Combination:
 
 ```
-Gmail Metadata
+Customer Email Data
 
 +
 
@@ -242,13 +281,22 @@ AI Evaluation
 Complete Support Ticket
 ```
 
+Final Ticket Contains:
+
+* Customer information
+* Email details
+* AI classification
+* Priority
+* Sentiment
+* Summary
+
 ---
 
 # Node 5 — IF Node
 
 ### Purpose
 
-Route tickets depending on priority.
+Route tickets based on priority level.
 
 Logic:
 
@@ -260,12 +308,27 @@ Priority = High
 Urgent Escalation
 
 
-Priority = Medium/Low
+Priority = Medium / Low
 
         ↓
 
 Normal Processing
 ```
+
+## High Priority
+
+Actions:
+
+* Notify support team
+* Generate response
+* Save ticket
+
+## Medium / Low Priority
+
+Actions:
+
+* Generate acknowledgment
+* Save ticket
 
 ---
 
@@ -273,7 +336,7 @@ Normal Processing
 
 ### Purpose
 
-Notify support teams about urgent issues.
+Alert support teams about urgent customer issues.
 
 Example:
 
@@ -282,20 +345,23 @@ Example:
 
 
 Category:
-Technical
+
+Technical Support
 
 
 Priority:
+
 High
 
 
 Sentiment:
+
 Negative
 
 
-Summary:
+Issue:
 
-Customer cannot log into their account.
+Customer cannot login after password reset.
 ```
 
 ---
@@ -304,18 +370,24 @@ Customer cannot log into their account.
 
 ### Purpose
 
-Send automatic acknowledgment emails.
+Automatically acknowledge customer requests.
 
 Example:
 
 ```
 Hello,
 
+
 Thank you for contacting our support team.
+
 
 Your request has been received and is currently being reviewed.
 
+
 Our team will respond as soon as possible.
+
+
+Thank you.
 ```
 
 ---
@@ -328,37 +400,37 @@ Store support tickets for tracking and reporting.
 
 Database Structure:
 
-| Field     | Description      |
-| --------- | ---------------- |
-| Timestamp | Ticket date      |
-| Sender    | Customer email   |
-| Subject   | Email title      |
-| Category  | Issue type       |
-| Priority  | Urgency level    |
-| Sentiment | Customer emotion |
-| Summary   | AI summary       |
-| Status    | Ticket state     |
+| Field     | Description          |
+| --------- | -------------------- |
+| Timestamp | Ticket creation date |
+| Sender    | Customer email       |
+| Subject   | Email title          |
+| Category  | Issue classification |
+| Priority  | Urgency level        |
+| Sentiment | Customer emotion     |
+| Summary   | AI-generated summary |
+| Status    | Ticket state         |
 
 ---
 
 # 📊 Support Ticket Database Example
 
-| Customer                                    | Category  | Priority | Sentiment | Status  |
-| ------------------------------------------- | --------- | -------- | --------- | ------- |
-| [user@email.com](mailto:user@email.com)     | Technical | High     | Negative  | Open    |
-| [client@email.com](mailto:client@email.com) | Billing   | Medium   | Neutral   | Pending |
+| Customer                                        | Category  | Priority | Sentiment | Status  |
+| ----------------------------------------------- | --------- | -------- | --------- | ------- |
+| [customer@email.com](mailto:customer@email.com) | Technical | High     | Negative  | Open    |
+| [client@email.com](mailto:client@email.com)     | Billing   | Medium   | Neutral   | Pending |
 
 ---
 
 # 🔐 Credentials Required
 
-| Service       | Purpose            |
-| ------------- | ------------------ |
-| Gmail OAuth2  | Email monitoring   |
-| Gemini API    | AI analysis        |
-| Google OAuth2 | Sheets storage     |
-| Telegram API  | Notifications      |
-| n8n Instance  | Workflow execution |
+| Service           | Purpose                      |
+| ----------------- | ---------------------------- |
+| Gmail OAuth2      | Email monitoring and replies |
+| Google Gemini API | AI analysis                  |
+| Google OAuth2     | Sheets storage               |
+| Telegram API      | Team notifications           |
+| n8n Instance      | Workflow execution           |
 
 ---
 
@@ -366,14 +438,17 @@ Database Structure:
 
 ## 1. Configure Gmail
 
-Enable Gmail OAuth credentials.
+Create Gmail OAuth credentials.
 
-Required access:
+Required permissions:
 
 ```
 Read Emails
+
 Send Emails
 ```
+
+Connect credentials inside n8n.
 
 ---
 
@@ -385,7 +460,7 @@ Add Gemini API credentials:
 GOOGLE_GEMINI_API_KEY
 ```
 
-Test AI classification.
+Test AI classification response.
 
 ---
 
@@ -401,25 +476,32 @@ Columns:
 
 ```
 Timestamp
+
 Sender
+
 Subject
+
 Category
+
 Priority
+
 Sentiment
+
 Summary
+
 Status
 ```
 
 ---
 
-## 4. Setup Telegram Bot
+## 4. Configure Telegram Bot
 
 Steps:
 
 1. Create bot using BotFather
-2. Copy token
-3. Configure Telegram credential
-4. Add notification chat
+2. Copy API token
+3. Add Telegram credentials in n8n
+4. Configure notification chat ID
 
 ---
 
@@ -433,10 +515,10 @@ workflow.json
 
 Configure:
 
-* Gmail
-* Gemini AI
+* Gmail credential
+* Gemini API
 * Google Sheets
-* Telegram
+* Telegram Bot
 
 Activate workflow.
 
@@ -444,21 +526,21 @@ Activate workflow.
 
 # 🧪 Testing Checklist
 
-| Test Case              | Expected Result         |
-| ---------------------- | ----------------------- |
-| Receive support email  | Workflow triggers       |
-| Gemini analyzes email  | AI data generated       |
-| High priority detected | Telegram alert sent     |
-| Auto reply generated   | Customer receives email |
-| Google Sheets updated  | Ticket logged           |
-| Sentiment detected     | Correct classification  |
+| Test Case               | Expected Result         |
+| ----------------------- | ----------------------- |
+| Receive customer email  | Workflow starts         |
+| Gemini analyzes message | AI data generated       |
+| Sentiment detected      | Classification created  |
+| High priority found     | Telegram alert sent     |
+| Auto reply generated    | Customer receives email |
+| Google Sheets updated   | Ticket logged           |
 
 ---
 
 # 📁 Repository Structure
 
-```
-day13-ai-customer-support-email-triage-system/
+```text
+AI-Customer-Support-Email-Triage-System/
 
 │
 ├── README.md
@@ -469,15 +551,13 @@ day13-ai-customer-support-email-triage-system/
 │   │
 │   ├── workflow.png
 │   ├── gmail-trigger.png
-│   ├── gemini-output.png
+│   ├── gemini-analysis.png
 │   ├── code-node.png
 │   ├── merge-node.png
-│   ├── if-node.png
-│   ├── google-sheets.png
+│   ├── if-node-routing.png
+│   ├── google-sheets-ticket-log.png
 │   ├── telegram-alert.png
-│   └── gmail-reply.png
-│
-├── assets/
+│   └── gmail-auto-reply.png
 │
 └── LICENSE
 ```
@@ -489,31 +569,31 @@ day13-ai-customer-support-email-triage-system/
 Recommended screenshots:
 
 * Complete n8n workflow
-* Gmail Trigger
-* Gemini AI analysis
-* JSON parser
-* Merge Node
-* Priority routing
+* Gmail Trigger configuration
+* Gemini AI analysis output
+* JSON parsing result
+* Merge Node execution
+* Priority routing logic
 * Google Sheets ticket database
-* Telegram escalation
-* Gmail response
+* Telegram escalation message
+* Gmail customer response
 
 ---
 
 # 🚀 Future Improvements
 
-| Feature                | Implementation              |
-| ---------------------- | --------------------------- |
-| Ticket ID Generation   | Unique support tracking     |
-| SLA Monitoring         | Response deadline tracking  |
-| Duplicate Detection    | Similar email matching      |
-| Agent Assignment       | Automatic routing           |
-| CRM Integration        | Salesforce/Zendesk          |
-| Attachment Analysis    | AI document processing      |
-| Multi-language Support | Language detection          |
-| Slack Integration      | Team communication          |
-| Analytics Dashboard    | Support performance metrics |
-| AI Reply Suggestions   | Agent assistance            |
+| Feature                | Implementation                |
+| ---------------------- | ----------------------------- |
+| Ticket ID System       | Unique support tracking       |
+| SLA Monitoring         | Response deadline tracking    |
+| Duplicate Detection    | Similar ticket matching       |
+| Agent Assignment       | Automatic team routing        |
+| CRM Integration        | Salesforce/Zendesk connection |
+| Attachment Analysis    | AI document processing        |
+| Multi-language Support | Language detection            |
+| Slack Integration      | Team communication            |
+| Analytics Dashboard    | Support performance metrics   |
+| AI Reply Suggestions   | Agent assistance              |
 
 ---
 
@@ -524,6 +604,7 @@ Recommended screenshots:
 * n8n Workflow Automation
 * Business process automation
 * Event-driven systems
+* Support workflow design
 
 ## Artificial Intelligence
 
@@ -531,12 +612,14 @@ Recommended screenshots:
 * Email classification
 * Sentiment analysis
 * Prompt Engineering
+* AI response generation
 
 ## Programming
 
 * JavaScript
 * JSON processing
 * Data transformation
+* Workflow logic
 
 ## APIs
 
@@ -550,11 +633,11 @@ Recommended screenshots:
 
 This project demonstrates:
 
-* Building AI-powered customer support systems
-* Automating email workflows
+* Building AI-powered support systems
+* Automating email-based workflows
 * Integrating LLMs into business processes
-* Creating priority-based routing systems
-* Designing scalable support automation
+* Creating intelligent ticket routing systems
+* Designing scalable customer support automation
 
 ---
 
@@ -579,7 +662,7 @@ GitHub:
 
 [https://github.com/belioautomation](https://github.com/belioautomation)
 
-This project is part of my **30-Day n8n Automation Portfolio**, showcasing AI-powered workflow automation using n8n, Google Gemini AI, APIs, and real-world customer support solutions.
+This project is part of my **30-Day n8n Automation Portfolio**, showcasing AI-powered workflow automation using **n8n, Google Gemini AI, APIs, and real-world customer support automation systems**.
 
 ---
 
@@ -588,7 +671,4 @@ This project is part of my **30-Day n8n Automation Portfolio**, showcasing AI-po
 MIT License
 
 ```
-
-This one is a stronger portfolio piece than the previous customer support triage because it demonstrates a complete **AI Support Operations Pipeline**:
-**Email → AI Understanding → Classification → Escalation → Response → Database Logging**.
 ```
